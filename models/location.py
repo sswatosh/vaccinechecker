@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from models.appointment import Appointment
+
 
 @dataclass
 class Location:
@@ -13,6 +15,7 @@ class Location:
     latitude: float
     longitude: float
     distance: int
+    appointments: set
 
     def __init__(self, feature):
         properties = feature["properties"]
@@ -27,8 +30,11 @@ class Location:
         self.latitude = coordinates[1]
         self.longitude = coordinates[0]
         self.distance = -1
+        self.appointments = set(Appointment(appointment, self.id) for appointment in properties["appointments"])
 
     def print(self):
         print(self.provider_brand_name + ", " + self.city)
         print(("%.1f" % self.distance) + " miles")
+        for appointment in self.appointments:
+            print("Time: " + appointment.time)
         print(self.url)

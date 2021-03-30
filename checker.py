@@ -1,6 +1,6 @@
 import json
 import time
-
+import webbrowser
 import requests
 from geopy.distance import geodesic
 
@@ -14,13 +14,14 @@ CHECK_INTERVAL_SECONDS = 60
 
 
 def main():
-    while(True):
-        print("checking...")
+    print("checking...")
+    while True:
         try:
             data = get_mn_data()
             locations = get_locations_with_appointments(data)
             nearby_locations = get_locations_within_threshold(locations)
-            alert_for_nearby_locations(nearby_locations)
+            locations_with_new_appointments = get_locations_with_new_appointments(nearby_locations)
+            alert_for_nearby_locations(locations_with_new_appointments)
         finally:
             time.sleep(CHECK_INTERVAL_SECONDS)
 
@@ -68,12 +69,37 @@ def get_locations_within_threshold(locations: [Location]):
     return filtered_locations
 
 
+old_appointments = set()
+
+
+def get_locations_with_new_appointments(locations: [Location]):
+    locations_by_id = {location.id: location for location in locations}
+
+    global old_appointments
+    current_appointments = set()
+    for location in locations:
+        current_appointments.update(location.appointments)
+
+    for appointment in old_appointments:
+        location = locations_by_id.get(appointment.location_id)
+        location.appointments.remove(appointment)
+
+    old_appointments = current_appointments
+
+    locations_filter = filter(lambda location: len(location.appointments) > 0, locations_by_id.values())
+    final_locations = [location for location in locations_filter]
+    return final_locations
+
+
 def alert_for_nearby_locations(locations: [Location]):
-    if len(locations) != 0:
+    if any(locations):
         for location in locations:
             print("VACCINE GET")
             location.print()
             print("")
+            webbrowser.open(location.url, new=1)
+    print("===========")
+    print("")
 
 
 if __name__ == "__main__":
