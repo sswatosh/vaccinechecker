@@ -59,7 +59,7 @@ def get_locations_within_threshold(locations: [Location]):
 
     for location in locations:
         location_point = (location.latitude, location.longitude)
-        distance_miles = geodesic(home_point, location_point)
+        distance_miles = geodesic(home_point, location_point).miles
 
         if distance_miles <= THRESHOLD_MILES:
             location.distance = distance_miles

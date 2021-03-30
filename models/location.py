@@ -30,5 +30,5 @@ class Location:
 
     def print(self):
         print(self.provider_brand_name + ", " + self.city)
-        print(str(self.distance) + " miles")
+        print(("%.1f" % self.distance) + " miles")
         print(self.url)
