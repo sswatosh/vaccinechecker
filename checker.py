@@ -1,5 +1,6 @@
 import json
 import time
+import traceback
 import webbrowser
 import requests
 from geopy.distance import geodesic
@@ -22,6 +23,9 @@ def main():
             nearby_locations = get_locations_within_threshold(locations)
             locations_with_new_appointments = get_locations_with_new_appointments(nearby_locations)
             alert_for_nearby_locations(locations_with_new_appointments)
+        except Exception as exc:
+            print(traceback.format_exc())
+            print(exc)
         finally:
             time.sleep(CHECK_INTERVAL_SECONDS)
 
@@ -82,7 +86,8 @@ def get_locations_with_new_appointments(locations: [Location]):
 
     for appointment in old_appointments:
         location = locations_by_id.get(appointment.location_id)
-        location.appointments.remove(appointment)
+        if location:
+            location.appointments.remove(appointment)
 
     old_appointments = current_appointments
 
@@ -98,8 +103,6 @@ def alert_for_nearby_locations(locations: [Location]):
             location.print()
             print("")
             webbrowser.open(location.url, new=1)
-    print("===========")
-    print("")
 
 
 if __name__ == "__main__":
