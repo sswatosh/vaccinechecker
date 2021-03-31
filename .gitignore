@@ -2,5 +2,5 @@
 venv
 *.iml
 *.pyc
-*.env
+.env
 /logs/*

@@ -1,17 +1,18 @@
 import json
 import time
 import traceback
-import webbrowser
 import requests
+import webbrowser
+from typing import Iterable
 from geopy.distance import geodesic
+from python_settings import settings
 
+import settings as local_settings
 from models.location import Location
 
-HOME_LAT = 0  # update
-HOME_LONG = 0  # update
-STATE = "AL"  # update
-THRESHOLD_MILES = 50
-CHECK_INTERVAL_SECONDS = 60
+
+settings.configure(local_settings)
+assert settings.configured
 
 
 def main():
@@ -27,11 +28,11 @@ def main():
             print(traceback.format_exc())
             print(exc)
         finally:
-            time.sleep(CHECK_INTERVAL_SECONDS)
+            time.sleep(settings.CHECK_INTERVAL_SECONDS)
 
 
 def get_mn_data():
-    response = requests.get("https://www.vaccinespotter.org/api/v0/states/" + STATE + ".json")
+    response = requests.get("https://www.vaccinespotter.org/api/v0/states/" + settings.STATE + ".json")
 
     if response.status_code != 200:
         raise ConnectionError("Request failed", response)
@@ -58,7 +59,7 @@ def get_locations_with_appointments(data: dict):
 
 
 def get_locations_within_threshold(locations: [Location]):
-    home_point = (HOME_LAT, HOME_LONG)
+    home_point = (settings.HOME_LATITUDE, settings.HOME_LONGITUDE)
 
     filtered_locations = []
 
@@ -66,7 +67,7 @@ def get_locations_within_threshold(locations: [Location]):
         location_point = (location.latitude, location.longitude)
         distance_miles = geodesic(home_point, location_point).miles
 
-        if distance_miles <= THRESHOLD_MILES:
+        if distance_miles <= settings.DISTANCE_THRESHOLD_MILES:
             location.distance = distance_miles
             filtered_locations.append(location)
 
@@ -91,18 +92,15 @@ def get_locations_with_new_appointments(locations: [Location]):
 
     old_appointments = current_appointments
 
-    locations_filter = filter(lambda location: len(location.appointments) > 0, locations_by_id.values())
-    final_locations = [location for location in locations_filter]
-    return final_locations
+    return filter(lambda location: len(location.appointments) > 0, locations_by_id.values())
 
 
-def alert_for_nearby_locations(locations: [Location]):
-    if any(locations):
-        for location in locations:
-            print("VACCINE GET")
-            location.print()
-            print("")
-            webbrowser.open(location.url, new=1)
+def alert_for_nearby_locations(locations: Iterable[Location]):
+    for location in locations:
+        print("VACCINE GET")
+        location.print()
+        print("")
+        webbrowser.open(location.url, new=1)
 
 
 if __name__ == "__main__":
