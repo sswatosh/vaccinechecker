@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from models.appointment import Appointment
+from models.vaccinespotter.appointment import Appointment
 
 
 @dataclass

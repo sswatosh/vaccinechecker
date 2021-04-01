@@ -8,7 +8,7 @@ from geopy.distance import geodesic
 from python_settings import settings
 
 import settings as local_settings
-from models.location import Location
+from models.vaccinespotter.location import Location
 
 
 settings.configure(local_settings)
