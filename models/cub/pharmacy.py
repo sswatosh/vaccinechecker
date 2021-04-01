@@ -16,5 +16,7 @@ def get_known_pharmacies():
         Pharmacy(11150, "St Michael", 55376),
         Pharmacy(9177, "Edina", 55435),
         Pharmacy(11038, "St Louis Park", 55416),
-        Pharmacy(9167, "Burnsville", 55337)
+        Pharmacy(9167, "Burnsville", 55337),
+        Pharmacy(9127, "Crystal", 55422),
+        Pharmacy(11139, "White Bear Lake", 55110)
     ]
